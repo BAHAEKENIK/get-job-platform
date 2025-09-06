@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\JobController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -27,4 +29,14 @@ Route::post('/login', [AuthController::class, 'login']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+});
+
+Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/{job}', [JobController::class, 'show']);
+
+// Routes protégées pour la gestion des offres (création, modification, suppression)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/jobs', [JobController::class, 'store']);
+    Route::put('/jobs/{job}', [JobController::class, 'update']);
+    Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
 });
