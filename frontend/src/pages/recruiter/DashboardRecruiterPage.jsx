@@ -51,7 +51,9 @@ const DashboardRecruiterPage = () => {
                                 <small>{job.location}</small>
                             </div>
                             <div>
-                                {/* Link to Edit page will be added later */}
+                                <Link to={`/recruiter/jobs/${job.id}/manage`} className="btn btn-sm btn-info me-2">
+                                    Gérer
+                                </Link>
                                 <button className="btn btn-sm btn-danger" onClick={() => handleDelete(job.id)}>Supprimer</button>
                             </div>
                         </li>

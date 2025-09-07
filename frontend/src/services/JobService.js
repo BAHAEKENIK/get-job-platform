@@ -12,7 +12,9 @@ const JobService={
     updateJob: (id, jobData) => apiClient.put(`/jobs/${id}`, jobData),
     deleteJob: (id) => apiClient.delete(`/jobs/${id}`),
     getMyJobs: () => apiClient.get('/my-jobs'),
-
+    getApplicantsForJob: (jobId) => {
+        return apiClient.get(`/jobs/${jobId}/applications`);
+    },
     
 }
 export default JobService;

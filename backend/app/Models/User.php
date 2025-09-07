@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Job;
+use App\Models\Application;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -51,5 +52,9 @@ class User extends Authenticatable
     public function jobs():HasMany
     {
         return $this->hasMany(Job::class);
+    }
+    public function applications():HasMany
+    {
+        return $this->hsMany(Application::class);
     }
 }

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ApplicationController; // N'oubliez pas l'import en haut du fichier
 
 
 /*
@@ -39,4 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::put('/jobs/{job}', [JobController::class, 'update']);
     Route::delete('/jobs/{job}', [JobController::class, 'destroy']);
+    Route::post('/jobs/{job}/apply', [ApplicationController::class, 'apply']);
+    Route::get('/my-applications', [ApplicationController::class, 'getForCandidate']);
+    Route::get('/jobs/{job}/applications', [ApplicationController::class, 'getForRecruiter']);
 });
