@@ -6,6 +6,7 @@ use App\Models\Job;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use App\Http\Resources\ApplicationResource;
+use App\Notifications\GeneralNotification;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
@@ -43,6 +44,13 @@ class ApplicationController extends Controller
             'job_id' => $job->id,
             'cv_path' => $cvPath,
         ]);
+        $recruiter = $job->user; // On récupère l'utilisateur qui a posté l'offre
+        $candidateName = $request->user()->name;
+        $message = "Vous avez reçu une nouvelle candidature de {$candidateName} pour l'offre '{$job->title}'.";
+        $url = "/recruiter/jobs/{$job->id}/manage"; // Lien direct vers la page de gestion
+
+        // On envoie la notification
+        $recruiter->notify(new GeneralNotification($message, $url));
 
         return new ApplicationResource($application);
     }

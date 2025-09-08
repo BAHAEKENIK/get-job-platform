@@ -2,8 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ApplicationController; // N'oubliez pas l'import en haut du fichier
 
 
@@ -43,4 +45,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/jobs/{job}/apply', [ApplicationController::class, 'apply']);
     Route::get('/my-applications', [ApplicationController::class, 'getForCandidate']);
     Route::get('/jobs/{job}/applications', [ApplicationController::class, 'getForRecruiter']);
+    Route::prefix('chat')->group(function () {
+    Route::get('/conversations', [ChatController::class, 'getConversations']);
+    Route::post('/conversations/start', [ChatController::class, 'startConversation']);
+    Route::get('/conversations/{conversation}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/conversations/{conversation}/messages', [ChatController::class, 'sendMessage']);
 });
+});
+Route::get('/notifications', [NotificationController::class, 'index']);
+Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);

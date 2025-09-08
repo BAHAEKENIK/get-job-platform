@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Job;
+use App\Models\Message;
 use App\Models\Application;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -57,4 +58,8 @@ class User extends Authenticatable
     {
         return $this->hsMany(Application::class);
     }
+    public function messages()
+{
+    return $this->hasMany(Message::class);
+}
 }

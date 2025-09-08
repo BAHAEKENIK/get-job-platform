@@ -10,9 +10,10 @@ import JobDetailPage from './pages/JobDetailPage';
 import RecruiterRoute from './components/RecruiterRoute';
 import DashboardRecruiterPage from './pages/recruiter/DashboardRecruiterPage';
 import CreateJobPage from './pages/recruiter/CreateJobPage';
-import ManageJobPage from './pages/recruiter/ManageJobPage'; // <-- ajouté
-import CandidateRoute from './components/CandidateRoute';   // <-- ajouté
-import MyApplicationsPage from './pages/candidate/MyApplicationsPage'; // <-- ajouté
+import ManageJobPage from './pages/recruiter/ManageJobPage';
+import CandidateRoute from './components/CandidateRoute';
+import MyApplicationsPage from './pages/candidate/MyApplicationsPage';
+import ChatPage from './pages/ChatPage'; // <-- import Chat
 
 // La page d'accueil reste la même
 function HomePage() {
@@ -20,8 +21,9 @@ function HomePage() {
 }
 
 function App() {
-  const { user, logout } = useContext(AuthContext);
-  
+  // 🔹 On récupère maintenant les notifications aussi depuis le contexte
+  const { user, logout, notifications } = useContext(AuthContext);
+
   const handleLogout = () => {
     logout();
   };
@@ -32,25 +34,64 @@ function App() {
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Get_Job</Link>
           <div className="collapse navbar-collapse">
-            <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
               {user ? (
                 <>
                   <li className="nav-item">
                     <span className="nav-link">Bonjour, {user.name}</span>
                   </li>
 
-                  {/* Lien vers tableau de bord général */}
+                  {/* Tableau de bord */}
                   <li className="nav-item">
                     <Link className="nav-link" to="/dashboard">Tableau de bord</Link>
                   </li>
 
-                  {/* Lien pour les candidats connectés */}
+                  {/* Messagerie */}
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/chat">Messagerie</Link>
+                  </li>
+
+                  {/* 🔔 Notifications */}
+                  <li className="nav-item dropdown">
+                    <a
+                      className="nav-link dropdown-toggle"
+                      href="#"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      Cloche
+                      {notifications && notifications.length > 0 && (
+                        <span className="badge rounded-pill bg-danger ms-1">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </a>
+                    <ul className="dropdown-menu dropdown-menu-end" style={{ minWidth: '300px' }}>
+                      {notifications && notifications.length > 0 ? (
+                        notifications.map(notif => (
+                          <li key={notif.id}>
+                            <Link to={notif.data.action_url} className="dropdown-item">
+                              {notif.data.message}
+                            </Link>
+                          </li>
+                        ))
+                      ) : (
+                        <li>
+                          <span className="dropdown-item-text">Aucune nouvelle notification</span>
+                        </li>
+                      )}
+                    </ul>
+                  </li>
+
+                  {/* Liens spécifiques aux candidats */}
                   {user.role === 'candidate' && (
                     <li className="nav-item">
                       <Link className="nav-link" to="/my-applications">Mes Candidatures</Link>
                     </li>
                   )}
 
+                  {/* Déconnexion */}
                   <li className="nav-item">
                     <button className="btn btn-link nav-link" onClick={handleLogout}>
                       Déconnexion
@@ -84,6 +125,7 @@ function App() {
           {/* Routes protégées */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/chat" element={<ChatPage />} /> {/* Messagerie */}
           </Route>
 
           {/* Routes recruteur */}
