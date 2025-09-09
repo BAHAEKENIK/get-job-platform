@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Ajout de useLocation
+
+import { useNavigate, useLocation , Link} from 'react-router-dom'; // Ajout de useLocation
 import { AuthContext } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -49,6 +50,9 @@ const LoginPage = () => {
                     />
                 </div>
                 <button type="submit" className="btn btn-primary">Se connecter</button>
+                <div className="text-center mt-3">
+                    <Link to="/forgot-password">Mot de passe oublié ?</Link>
+                </div>
             </form>
         </div>
     );

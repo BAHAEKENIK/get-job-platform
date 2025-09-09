@@ -22,7 +22,13 @@ const AuthService = {
         apiClient.post('/logout');
         localStorage.removeItem('user');
         localStorage.removeItem('token');
-    }
+    },
+    forgotPassword:(email)=>{
+        return apiClient.post('/forgot-password', { email });
+    },
+    resetPassword: (data) => {
+        return apiClient.post('/reset-password', data);
+    },
 };
 
 export default AuthService;

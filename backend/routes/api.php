@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\NotificationController;
@@ -54,3 +55,22 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::get('/notifications', [NotificationController::class, 'index']);
 Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']);
+
+// --- Routes pour l'administration ---
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+
+    // Route de test pour vérifier que la protection fonctionne
+    Route::get('/test', function () {
+        return response()->json(['message' => 'Bienvenue dans la section Admin !']);
+    });
+    Route::get('/dashboard-stats', [AdminDashboardController::class, 'getStats']);
+
+    // C'est ici que nous ajouterons toutes les futures routes de l'admin
+    // (dashboard, gestion des utilisateurs, etc.)
+
+});
+use App\Http\Controllers\Auth\ForgotPasswordController;
+
+// ... Dans la section des routes publiques, avec /register et /login
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset']);

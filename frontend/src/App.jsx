@@ -13,7 +13,17 @@ import CreateJobPage from './pages/recruiter/CreateJobPage';
 import ManageJobPage from './pages/recruiter/ManageJobPage';
 import CandidateRoute from './components/CandidateRoute';
 import MyApplicationsPage from './pages/candidate/MyApplicationsPage';
-import ChatPage from './pages/ChatPage'; // <-- import Chat
+import ChatPage from './pages/ChatPage';
+
+// --- NOUVELLES IMPORTATIONS ADMIN ---
+import AdminRoute from './components/AdminRoute';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import ManageUsersPage from './pages/admin/ManageUsersPage';
+import ManageJobsPage from './pages/admin/ManageJobsPage';
+
+// --- IMPORTATIONS MOT DE PASSE ---
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // La page d'accueil reste la même
 function HomePage() {
@@ -21,7 +31,6 @@ function HomePage() {
 }
 
 function App() {
-  // 🔹 On récupère maintenant les notifications aussi depuis le contexte
   const { user, logout, notifications } = useContext(AuthContext);
 
   const handleLogout = () => {
@@ -91,6 +100,13 @@ function App() {
                     </li>
                   )}
 
+                  {/* LIEN ADMIN */}
+                  {user.role === 'admin' && (
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/admin/dashboard">Admin</Link>
+                    </li>
+                  )}
+
                   {/* Déconnexion */}
                   <li className="nav-item">
                     <button className="btn btn-link nav-link" onClick={handleLogout}>
@@ -106,6 +122,9 @@ function App() {
                   <li className="nav-item">
                     <Link className="nav-link" to="/register">Inscription</Link>
                   </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/forgot-password">Mot de passe oublié</Link>
+                  </li>
                 </>
               )}
             </ul>
@@ -119,13 +138,15 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/jobs" element={<JobsListPage />} />
           <Route path="/jobs/:id" element={<JobDetailPage />} />
 
           {/* Routes protégées */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/chat" element={<ChatPage />} /> {/* Messagerie */}
+            <Route path="/chat" element={<ChatPage />} />
           </Route>
 
           {/* Routes recruteur */}
@@ -138,6 +159,14 @@ function App() {
           {/* Routes candidat */}
           <Route element={<CandidateRoute />}>
             <Route path="/my-applications" element={<MyApplicationsPage />} />
+          </Route>
+
+          {/* --- NOUVELLES ROUTES ADMIN --- */}
+          <Route element={<AdminRoute />}>
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            {/* Préparées pour la suite */}
+            {/* <Route path="/admin/users" element={<ManageUsersPage />} /> */}
+            {/* <Route path="/admin/jobs" element={<ManageJobsPage />} /> */}
           </Route>
         </Routes>
       </div>
