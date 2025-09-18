@@ -6,26 +6,19 @@ const AuthService = {
     },
 
     login: async (credentials) => {
-        // Note: Sanctum setup is often handled by default with withCredentials,
-        // but if needed, a call to /sanctum/csrf-cookie can be placed here.
-        
+        // C'est juste un appel direct. C'est le AuthContext qui gère le stockage.
         const response = await apiClient.post('/login', credentials);
-        if (response.data.access_token) {
-            // Stocke le token et les informations de l'utilisateur
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            localStorage.setItem('token', response.data.access_token);
-        }
-        return response.data;
+        return response; // On renvoie la réponse complète
     },
 
     logout:()=>{
-        apiClient.post('/logout');
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        return apiClient.post('/logout');
     },
+
     forgotPassword:(email)=>{
         return apiClient.post('/forgot-password', { email });
     },
+
     resetPassword: (data) => {
         return apiClient.post('/reset-password', data);
     },

@@ -3,44 +3,47 @@ import AuthService from '../services/AuthService';
 import apiClient from '../services/apiClient';
 import echo from '../services/echo';
 
-// Création du contexte
+const NotificationService = {
+    getNotifications: () => apiClient.get('/notifications'),
+};
+
 export const AuthContext = createContext(null);
 
-// Fournisseur de contexte
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token') || null);
     const [loading, setLoading] = useState(true);
-
-    // 🔔 Notifications
     const [notifications, setNotifications] = useState([]);
-
+    
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const storedToken = localStorage.getItem('token');
+        const initializeAuth = async () => {
+            const storedToken = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
 
-        if (storedUser && storedToken) {
-            const parsedUser = JSON.parse(storedUser);
+            if (storedToken && storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                setToken(storedToken);
+                setUser(parsedUser);
 
-            setUser(parsedUser);
-            setToken(storedToken);
+                // Configuration pour les requêtes authentifiées
+                apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+                echo.connect();
 
-            // Token pour axios
-            apiClient.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-
-            // Connexion Echo
-            echo.connect();
-
-            // 🔹 Écouter les notifications en temps réel
-            echo.private(`App.Models.User.${parsedUser.id}`)
-                .notification((notification) => {
-                    setNotifications(prev => [notification, ...prev]);
-                });
-        }
-
-        setLoading(false);
-
-        // 🔹 Nettoyer les écouteurs à la destruction
+                // Récupération des notifications initiales
+                NotificationService.getNotifications()
+                    .then(res => setNotifications(res.data))
+                    .catch(err => console.error("Échec chargement notifs", err));
+                
+                // Écoute des nouvelles notifications
+                echo.private(`App.Models.User.${parsedUser.id}`)
+                    .notification(notification => {
+                        setNotifications(prev => [notification, ...prev]);
+                    });
+            }
+            setLoading(false);
+        };
+        initializeAuth();
+        
         return () => {
             if (user) {
                 echo.leave(`App.Models.User.${user.id}`);
@@ -49,61 +52,58 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const login = async (credentials) => {
-        const data = await AuthService.login(credentials);
+        // Le service fait l'appel...
+        const response = await AuthService.login(credentials);
+        
+        // ...et le contexte gère le résultat.
+        const { data } = response;
+        if (data.access_token && data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.access_token);
+            apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
 
-        setUser(data.user);
-        setToken(data.access_token);
+            // Met à jour l'état de l'application
+            setUser(data.user);
+            setToken(data.access_token);
 
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('token', data.access_token);
-
-        // Token axios
-        apiClient.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`;
-
-        // Connexion Echo
-        echo.connect();
-
-        // 🔹 Écouter notifications après login
-        echo.private(`App.Models.User.${data.user.id}`)
-            .notification((notification) => {
-                setNotifications(prev => [notification, ...prev]);
-            });
-
-        return data;
+            // Relancer l'écoute des notifications
+            // Cette ligne n'est techniquement pas nécessaire car le useEffect va se relancer,
+            // mais c'est une bonne sécurité pour s'assurer que c'est immédiat.
+            echo.private(`App.Models.User.${data.user.id}`)
+                .notification(notification => {
+                    setNotifications(prev => [notification, ...prev]);
+                });
+        }
+        return response;
     };
-
-    const register = (data) => {
-        return AuthService.register(data);
-    };
-
+    
     const logout = async () => {
-        echo.disconnect();
+        if(user) {
+            echo.leave(`App.Models.User.${user.id}`);
+        }
         await AuthService.logout();
-
+        
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        delete apiClient.defaults.headers.common['Authorization'];
+        
         setUser(null);
         setToken(null);
         setNotifications([]);
-
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-
-        delete apiClient.defaults.headers.common['Authorization'];
+        echo.disconnect();
     };
 
+    const register = (data) => AuthService.register(data);
+
     const authContextValue = {
-        user,
-        token,
-        loading,
-        notifications,   // 🔔 notifications accessibles dans toute l’app
-        setNotifications,
-        login,
-        register,
-        logout,
+        user, token, loading,
+        notifications, setNotifications,
+        login, register, logout,
     };
 
     return (
         <AuthContext.Provider value={authContextValue}>
-            {children}
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

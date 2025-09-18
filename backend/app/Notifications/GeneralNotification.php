@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Broadcasting\PrivateChannel;
 
 class GeneralNotification extends Notification implements ShouldBroadcast
 {
@@ -14,9 +15,9 @@ class GeneralNotification extends Notification implements ShouldBroadcast
     public $message;
     public $action_url;
 
-    /**
-     * Create a new notification instance.
-     */
+    // On va stocker l'ID de l'utilisateur pour y avoir accès plus tard
+    private $userId;
+
     public function __construct(string $message, string $action_url = '/')
     {
         $this->message = $message;
@@ -25,10 +26,27 @@ class GeneralNotification extends Notification implements ShouldBroadcast
 
     /**
      * Get the notification's delivery channels.
+     *
+     * @param object $notifiable
+     * @return array
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'broadcast']; // Stocker ET diffuser en temps réel
+        // On récupère l'ID de l'utilisateur ici
+        $this->userId = $notifiable->id;
+
+        return ['database', 'broadcast'];
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array
+     */
+    public function broadcastOn(): array
+    {
+        // On utilise la propriété que nous avons sauvegardée
+        return [new PrivateChannel('App.Models.User.' . $this->userId)];
     }
 
     /**
@@ -48,8 +66,9 @@ class GeneralNotification extends Notification implements ShouldBroadcast
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
         return new BroadcastMessage([
-            'id' => $this->id, // Laravel ajoute l'ID automatiquement
+            'id' => $this->id,
             'read_at' => null,
+            'created_at' => now()->toIso8601String(),
             'data' => [
                  'message' => $this->message,
                  'action_url' => $this->action_url,

@@ -1,63 +1,178 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import styles from './RegisterPage.module.css';
 
 const RegisterPage = () => {
-    // ... les useStates restent les mêmes (name, email, etc.) ...
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [role, setRole] = useState('candidate');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [role, setRole] = useState('candidate');
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-    const { register } = useContext(AuthContext); // Obtenir la fonction register
-    const navigate = useNavigate();
+  const { register } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const registerData = { name, email, password, password_confirmation: passwordConfirmation, role };
-            await register(registerData);
-            alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
-            navigate('/login'); // Rediriger vers la page de connexion
-        } catch (error) {
-            console.error('Registration failed:', error);
-            alert('Erreur lors de l\'inscription.');
+  const canvasRef = useRef(null);
+
+  // 🎨 Animation des points interactifs
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd'];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 3 + 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        dx: (Math.random() - 0.5) * 1,
+        dy: (Math.random() - 0.5) * 1,
+      });
+    }
+
+    let mouse = { x: null, y: null };
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+        const distX = mouse.x - p.x;
+        const distY = mouse.y - p.y;
+        const dist = Math.sqrt(distX * distX + distY * distY);
+        if (dist < 100) {
+          p.x -= distX / 10;
+          p.y -= distY / 10;
         }
-    };
 
-    // Le JSX reste exactement le même qu'avant...
-    return (
-         <div className="container mt-5">
-            <h2>Inscription</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                    <label className="form-label">Nom</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Email</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Mot de passe</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="form-control" required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Confirmation du mot de passe</label>
-                    <input type="password" value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} className="form-control" required />
-                </div>
-                 <div className="mb-3">
-                    <label className="form-label">Je suis un...</label>
-                    <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
-                        <option value="candidate">Candidat</option>
-                        <option value="recruiter">Recruteur</option>
-                    </select>
-                </div>
-                <button type="submit" className="btn btn-primary">S'inscrire</button>
-            </form>
-        </div>
-    );
+        if (Math.random() < 0.005) {
+          p.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', () => {});
+    };
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (password !== passwordConfirmation) {
+      setErrors({ password_confirmation: "Les mots de passe ne correspondent pas" });
+      return;
+    }
+
+    try {
+      const registerData = { name, email, password, password_confirmation: passwordConfirmation, role };
+      await register(registerData);
+      alert('Inscription réussie 🎉 ! Vous pouvez maintenant vous connecter.');
+      navigate('/login');
+    } catch (error) {
+      console.error('Registration failed:', error);
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        alert("Erreur lors de l'inscription.");
+      }
+    }
+  };
+
+  return (
+    <div className={styles.registerPage}>
+      <canvas ref={canvasRef} className={styles.background}></canvas>
+
+      <div className={styles.formContainer}>
+        <h2 className={`text-center ${styles.formHeader}`}>Créer un compte</h2>
+
+        <form onSubmit={handleSubmit}>
+          {/* Nom */}
+          <div className="mb-3">
+            <label className="form-label">Nom Complet</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={`form-control ${errors.name ? 'is-invalid' : ''}`} placeholder="ex: Jean Dupont" required />
+            {errors.name && <div className="invalid-feedback">{errors.name[0]}</div>}
+          </div>
+
+          {/* Email */}
+          <div className="mb-3">
+            <label className="form-label">Adresse e-mail</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={`form-control ${errors.email ? 'is-invalid' : ''}`} placeholder="votre@email.com" required />
+            {errors.email && <div className="invalid-feedback">{errors.email[0]}</div>}
+          </div>
+
+          {/* Mot de passe */}
+          <div className="mb-3">
+            <label className="form-label">Mot de passe</label>
+            <div className="input-group">
+              <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className={`form-control ${errors.password ? 'is-invalid' : ''}`} required />
+              <span className={`input-group-text ${styles.passwordIcon}`} onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+            {errors.password && <div className="invalid-feedback d-block">{errors.password[0]}</div>}
+          </div>
+
+          {/* Confirmation mot de passe */}
+          <div className="mb-4">
+            <label className="form-label">Confirmer le mot de passe</label>
+            <div className="input-group">
+              <input type={showPasswordConfirm ? "text" : "password"} value={passwordConfirmation} onChange={(e) => setPasswordConfirmation(e.target.value)} className={`form-control ${errors.password_confirmation ? 'is-invalid' : ''}`} required />
+              <span className={`input-group-text ${styles.passwordIcon}`} onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}>
+                {showPasswordConfirm ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
+            {errors.password_confirmation && <div className="invalid-feedback d-block">{errors.password_confirmation}</div>}
+          </div>
+
+          {/* Rôle */}
+          <div className="mb-4">
+            <label className="form-label">Vous êtes un...</label>
+            <select className={`form-select ${errors.role ? 'is-invalid' : ''}`} value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="candidate">Candidat (à la recherche d'un emploi)</option>
+              <option value="recruiter">Recruteur (publiant une offre)</option>
+            </select>
+            {errors.role && <div className="invalid-feedback">{errors.role[0]}</div>}
+          </div>
+
+          <button type="submit" className={`w-100 ${styles.submitButton}`}>Créer mon compte</button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default RegisterPage;

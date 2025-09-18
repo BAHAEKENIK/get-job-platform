@@ -33,7 +33,7 @@ class Job extends Model
     {
         return $this->belongsTo(User::class);
     }
-    public function applictions():HasMany
+    public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
     }

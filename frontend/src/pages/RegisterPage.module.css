@@ -1,0 +1,64 @@
+.registerPage {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.formContainer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 450px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2.5rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.formHeader {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.passwordIcon {
+  cursor: pointer;
+  color: #6c757d;
+  transition: color 0.2s ease-in-out;
+}
+
+.passwordIcon:hover {
+  color: #343a40;
+}
+
+.submitButton {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  transition: all 0.3s ease;
+  background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 51%, #6a11cb 100%);
+  background-size: 200% auto;
+  color: white;
+}
+
+.submitButton:hover {
+  background-position: right center;
+  color: #fff;
+  text-decoration: none;
+}

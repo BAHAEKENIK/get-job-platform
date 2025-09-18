@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Conversation;
 use App\Models\Message;
-use App\Models\User;
 use Illuminate\Http\Request;
-use App\Events\NewMessageSent;
+use App\Events\NewMessageSent; // L'import pour l'événement temps réel du chat
 use App\Http\Resources\ConversationResource;
 use App\Http\Resources\MessageResource;
+use App\Notifications\GeneralNotification; // L'import pour les notifications visibles
 
 class ChatController extends Controller
 {
@@ -19,7 +19,7 @@ class ChatController extends Controller
         $conversations = Conversation::where('participant1_id', $user->id)
             ->orWhere('participant2_id', $user->id)
             ->with(['participant1', 'participant2', 'messages' => function ($query) {
-                $query->latest(); // pour le last_message
+                $query->latest();
             }])
             ->get();
 
@@ -27,13 +27,16 @@ class ChatController extends Controller
     }
 
     // Récupérer les messages d'une conversation spécifique
-    public function getMessages(Conversation $conversation)
+    public function getMessages(Conversation $conversation, Request $request)
     {
-        // TODO: Autorisation pour vérifier si l'utilisateur fait partie de la conversation
+        if ($request->user()->id !== $conversation->participant1_id && $request->user()->id !== $conversation->participant2_id) {
+            return response()->json(['error' => 'Non autorisé.'], 403);
+        }
+
         return MessageResource::collection($conversation->messages()->oldest()->get());
     }
 
-    // Démarrer une conversation (typiquement un recruteur avec un candidat)
+    // Démarrer une conversation (MODIFIÉ)
     public function startConversation(Request $request)
     {
         $request->validate(['user_id' => 'required|exists:users,id']);
@@ -42,9 +45,11 @@ class ChatController extends Controller
 
         // Vérifie si une conversation existe déjà
         $conversation = Conversation::where(function ($query) use ($user, $otherUserId) {
-            $query->where('participant1_id', $user->id)->where('participant2_id', $otherUserId);
+            $query->where('participant1_id', $user->id)
+                  ->where('participant2_id', $otherUserId);
         })->orWhere(function ($query) use ($user, $otherUserId) {
-            $query->where('participant1_id', $otherUserId)->where('participant2_id', $user->id);
+            $query->where('participant1_id', $otherUserId)
+                  ->where('participant2_id', $user->id);
         })->first();
 
         if (!$conversation) {
@@ -54,16 +59,26 @@ class ChatController extends Controller
             ]);
         }
 
-        return new ConversationResource($conversation->load(['participant1', 'participant2']));
+        // --- RENVOI DE LA RESSOURCE COMPLÈTE ---
+        return new ConversationResource(
+            $conversation->load([
+                'participant1',
+                'participant2',
+                'messages' => fn($q) => $q->latest()
+            ])
+        );
     }
 
     // Envoyer un message dans une conversation
     public function sendMessage(Request $request, Conversation $conversation)
     {
-        // TODO: Autorisation pour vérifier si l'utilisateur fait partie de la conversation
+        if ($request->user()->id !== $conversation->participant1_id && $request->user()->id !== $conversation->participant2_id) {
+            return response()->json(['error' => 'Non autorisé.'], 403);
+        }
+
         $validated = $request->validate([
             'content' => 'nullable|string',
-            'file' => 'nullable|file|max:5120', // 5Mo max
+            'file' => 'nullable|file|max:5120',
         ]);
 
         if (empty($validated['content']) && !$request->hasFile('file')) {
@@ -81,8 +96,17 @@ class ChatController extends Controller
             'file_path' => $filePath,
         ]);
 
-        // Diffuser l'événement
-        broadcast(new NewMessageSent($message->load('user')))->toOthers();
+        // --- SECTION NOTIFICATION VISIBLE (CLOCHE) ---
+        $recipient = $conversation->participant1_id === auth()->id()
+            ? $conversation->participant2
+            : $conversation->participant1;
+
+        $notificationMessage = "Vous avez reçu un nouveau message de " . auth()->user()->name;
+        $url = "/chat";
+        $recipient->notify(new GeneralNotification($notificationMessage, $url));
+
+        // --- SECTION TEMPS RÉEL (MET À JOUR L'UI DU CHAT) ---
+        broadcast(new NewMessageSent($message->load('user')));
 
         return new MessageResource($message);
     }

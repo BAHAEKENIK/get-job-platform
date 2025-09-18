@@ -12,11 +12,10 @@ class JobController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+        public function index(Request $request)
     {
-        $query = Job::query()->with('user')->latest(); // Pré-charge la relation user et trie par plus récent
+        $query = Job::query()->with('user')->latest();
 
-        // Barre de recherche par mot-clé (cherche dans le titre et la description)
         if ($request->filled('keyword')) {
             $keyword = $request->input('keyword');
             $query->where(function ($q) use ($keyword) {
@@ -25,14 +24,15 @@ class JobController extends Controller
             });
         }
 
-        // Filtre par localisation
         if ($request->filled('location')) {
             $location = $request->input('location');
             $query->where('location', 'like', "%{$location}%");
         }
 
-        // Paginer les résultats pour de meilleures performances
-        $jobs = $query->paginate(10);
+        // --- LA MODIFICATION EST ICI ---
+        // .withQueryString() ajoute les paramètres de recherche aux liens de pagination.
+        // C'est essentiel pour que les filtres persistent quand on change de page.
+        $jobs = $query->paginate(3)->withQueryString();
 
         return JobResource::collection($jobs);
     }
@@ -65,7 +65,6 @@ class JobController extends Controller
      */
     public function show(Job $job)
     {
-        // Charger la relation 'user' pour l'afficher
         return new JobResource($job->load('user'));
     }
 
@@ -74,7 +73,6 @@ class JobController extends Controller
      */
     public function update(Request $request, Job $job)
     {
-        // Vérifie que l'utilisateur est le propriétaire de l'offre
         if ($request->user()->id !== $job->user_id) {
              return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -98,18 +96,18 @@ class JobController extends Controller
      */
     public function destroy(Request $request, Job $job)
     {
-        // Vérifie que l'utilisateur est soit le propriétaire, soit un admin
         if ($request->user()->id !== $job->user_id && $request->user()->role !== 'admin') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $job->delete();
 
-        return response()->noContent(); // Réponse standard pour une suppression réussie
+        return response()->noContent();
     }
+
     public function myJobs(Request $request)
     {
-        if($request->user()->role!=='recruiter')
+        if($request->user()->role !== 'recruiter')
         {
             return response()->json(['error'=>'Unauthorized.'],403);
         }
@@ -117,4 +115,24 @@ class JobController extends Controller
 
         return JobResource::collection($jobs);
     }
+    public function adminIndex(Request $request)
+    {
+        $query = Job::query()->with('user')->latest();
+
+        // Réutiliser les filtres de la méthode index() si nécessaire
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $jobs = $query->paginate(15);
+
+        return JobResource::collection($jobs);
+    }
+
 }

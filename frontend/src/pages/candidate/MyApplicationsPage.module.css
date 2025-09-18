@@ -1,0 +1,99 @@
+.pageContainer {
+  position: relative; /* Indispensable pour l'animation */
+  min-height: calc(100vh - 56px); /* Hauteur sous la navbar */
+  width: 100%;
+  overflow-y: auto; /* Permet de scroller si le contenu dépasse */
+  padding: 2.5rem;
+  background-color: #f4f7f6;
+}
+
+.backgroundCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.contentWrapper {
+  position: relative;
+  z-index: 1; /* Le contenu doit être au-dessus du canvas */
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+/* Carte pour chaque candidature */
+.applicationCard {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.applicationCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.jobTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.jobTitle a {
+  text-decoration: none;
+  color: #2c3e50;
+  transition: color 0.2s;
+}
+.jobTitle a:hover {
+  color: #0d6efd;
+}
+
+.date {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.status {
+  text-align: right;
+}
+
+.statusLabel {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.statusBadge {
+  font-size: 0.9rem;
+  padding: 0.5em 1em;
+  border-radius: 20px;
+}
+
+.noApplications {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+  color: #6c757d;
+}
