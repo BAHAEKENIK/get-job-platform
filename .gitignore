@@ -1,0 +1,12 @@
+# Dépendances du Frontend
+frontend/node_modules
+
+# Fichiers de secrets du Frontend
+frontend/.env
+frontend/.env.*
+
+# Dépendances du Backend
+backend/vendor
+
+# Fichier de secrets du Backend
+backend/.env

@@ -1,0 +1,22 @@
+# Ce fichier décrit les services à créer sur la plateforme Render.com
+services:
+  # Notre service backend principal (l'application Laravel)
+  - type: web
+    name: get-job-backend
+    env: php
+    # Dossier où se trouve notre code Laravel
+    rootDir: backend
+    # Commandes à exécuter lors de la construction
+    buildCommand: "./build.sh"
+    # Commande pour démarrer le serveur web
+    startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
+
+  # Notre serveur temps réel Reverb (un second processus)
+  - type: worker
+    name: get-job-reverb
+    env: php
+    rootDir: backend
+    # On installe les mêmes dépendances
+    buildCommand: "composer install --no-dev --no-interaction --prefer-dist"
+    # Mais on démarre le serveur Reverb à la place
+    startCommand: "php artisan reverb:start --host=0.0.0.0 --port=8080" 
