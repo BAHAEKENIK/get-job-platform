@@ -1,10 +1,7 @@
-# Étape 1: Utiliser une image de base officielle pour PHP 8.2 avec Apache
+# Étape 1: Utiliser une image PHP 8.2 avec Apache
 FROM php:8.2-apache
 
-# Étape 2: Mise à jour des paquets et installation des dépendances système
-# - libzip-dev pour le support des archives zip
-# - libpng-dev, libjpeg-dev, libfreetype6-dev pour le traitement d'images (GD)
-# - git et unzip pour Composer
+# Étape 2: Installer dépendances système
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -13,40 +10,34 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql gd zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Étape 3: Installation des extensions PHP nécessaires à Laravel
-# - pdo & pdo_mysql pour la connexion à la base de données
-# - gd pour la manipulation d'images
-# - zip pour la gestion des archives
-RUN docker-php-ext-install pdo pdo_mysql gd zip
-
-# Étape 4: Activer le module de réécriture d'URL d'Apache
+# Étape 3: Activer Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Étape 5: Installation de Composer (le gestionnaire de paquets de PHP)
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Étape 4: Installer Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Étape 6: Configuration d'Apache pour qu'il pointe vers le dossier `public` de Laravel
+# Étape 5: Copier configuration Apache
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# Étape 7: Définir le répertoire de travail
+# Étape 6: Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Étape 8: Copier tous les fichiers du projet Laravel dans l'image
+# Étape 7: Copier le code
 COPY . .
 
-# Étape 9: Installer les dépendances PHP du projet
-# --no-dev : pour ignorer les paquets de développement, plus léger
-# --optimize-autoloader : pour des performances optimales
+# Étape 8: Installer dépendances PHP
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# Étape 10: Définir les bonnes permissions pour les dossiers de cache et de stockage
+# Étape 9: Donner permissions
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Étape 11: Exposer le port sur lequel Apache écoute
+# Étape 10: Exposer le port
 EXPOSE 80
 
-# Étape 12: La commande qui sera exécutée pour démarrer le serveur
+# Étape 11: Démarrer Apache
 CMD ["apache2-foreground"]
