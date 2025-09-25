@@ -1,12 +1,13 @@
-# Dépendances du Frontend
-frontend/node_modules
+# Ignorer les dépendances
+/node_modules/
+/backend/vendor/
 
-# Fichiers de secrets du Frontend
-frontend/.env
-frontend/.env.*
+# Ignorer les fichiers d'environnement locaux (LE PLUS IMPORTANT)
+/backend/.env
+/frontend/.env
 
-# Dépendances du Backend
-backend/vendor
-
-# Fichier de secrets du Backend
-backend/.env
+# Autres fichiers de configuration Laravel et logs
+/backend/storage/*.key
+/backend/storage/logs/*.log
+npm-debug.log
+yarn-error.log

@@ -8,14 +8,18 @@ use Illuminate\Http\Request;
 class TrustProxies extends Middleware
 {
     /**
-     * The trusted proxies for this application.
+     * The proxies that should be trusted.
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+
+    // --- LA MODIFICATION EST ICI ---
+    // On remplace le contenu de $proxies pour faire confiance à tous les proxies.
+    // C'est la configuration recommandée pour les plateformes comme Railway.
+    protected $proxies = '*';
 
     /**
-     * The headers that should be used to detect proxies.
+     * The headers that should be trusted.
      *
      * @var int
      */
