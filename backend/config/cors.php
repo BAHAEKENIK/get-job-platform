@@ -10,7 +10,9 @@ return [
         'http://localhost:5173'
     ],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        'https://get-job-plateform.netlify.app/*', // Add pattern matching
+    ],
 
     'allowed_headers' => ['*'],
 
