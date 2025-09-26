@@ -30,5 +30,5 @@ class DatabaseSeeder extends Seeder
 
         // 2. Création des Recruteurs et Candidats
 
-        }
+    }
 }
