@@ -1,4 +1,4 @@
-/* Style pour le tooltip sur les grands écrans */
+/* Style pour le tooltip sur grand écran */
 [data-tooltip] {
   position: relative;
   cursor: pointer;
@@ -19,10 +19,9 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
-  z-index: 1080; /* Doit être au-dessus du reste */
+  z-index: 1080;
 }
 
-/* Afficher le tooltip au survol */
 [data-tooltip]:hover:before {
   opacity: 1;
   visibility: visible;
@@ -30,12 +29,23 @@
 }
 
 /*
- * --- MEDIA QUERY POUR MOBILE ---
- * Pour les écrans de moins de 992px de large (le point de rupture 'lg' de Bootstrap),
- * on désactive les tooltips car ils ne fonctionnent pas bien sur tactile.
-*/
+ * --- MEDIA QUERIES POUR LE RESPONSIVE ---
+ * Pour les écrans de taille "lg" (large) et plus petits (typiquement les tablettes et mobiles)
+ */
 @media (max-width: 991.98px) {
+  /* On désactive les tooltips car ils ne fonctionnent pas bien sur le tactile */
   [data-tooltip]:before {
     display: none;
+  }
+
+  /* On s'assure que le menu déroulant prend toute la largeur */
+  .navbar-nav {
+    width: 100%;
+    align-items: flex-start !important; /* Alignement à gauche dans le menu burger */
+  }
+
+  .nav-item {
+    width: 100%;
+    margin: 0.5rem 0 !important;
   }
 }
