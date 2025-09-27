@@ -1,4 +1,4 @@
-/* Style pour le tooltip */
+/* Style pour le tooltip sur les grands écrans */
 [data-tooltip] {
   position: relative;
   cursor: pointer;
@@ -22,8 +22,20 @@
   z-index: 1080; /* Doit être au-dessus du reste */
 }
 
+/* Afficher le tooltip au survol */
 [data-tooltip]:hover:before {
   opacity: 1;
   visibility: visible;
-  transition-delay: 0.3s; /* Petit délai avant d'apparaître */
+  transition-delay: 0.3s;
+}
+
+/*
+ * --- MEDIA QUERY POUR MOBILE ---
+ * Pour les écrans de moins de 992px de large (le point de rupture 'lg' de Bootstrap),
+ * on désactive les tooltips car ils ne fonctionnent pas bien sur tactile.
+*/
+@media (max-width: 991.98px) {
+  [data-tooltip]:before {
+    display: none;
+  }
 }
