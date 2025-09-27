@@ -31,24 +31,16 @@ const ChatWindow = ({ conversation }) => {
 
     // Chargement des messages et écoute des nouveaux messages en temps réel
     useEffect(() => {
-        if (!conversation) return;
-        setMessages([]);
+    const pollInterval = setInterval(() => {
+        if (conversation) {
+            ChatService.getMessages(conversation.id).then(response => {
+                setMessages(response.data.data);
+            });
+        }
+    }, 3000); // Poll every 3 seconds
 
-        // Récupérer les messages existants
-        ChatService.getMessages(conversation.id).then(response => {
-            setMessages(response.data.data);
-        });
-
-        // Écouter les nouveaux messages via Echo
-        const channel = echo.private(`conversations.${conversation.id}`);
-        const handleNewMessage = (event) => setMessages(prev => [...prev, event.message]);
-        channel.listen('.new-message', handleNewMessage);
-
-        return () => {
-            channel.stopListening('.new-message', handleNewMessage);
-            echo.leaveChannel(`conversations.${conversation.id}`);
-        };
-    }, [conversation]);
+    return () => clearInterval(pollInterval);
+}, [conversation]);
 
     // Envoi de message texte ou fichier
     const handleSendMessage = async (e) => {
