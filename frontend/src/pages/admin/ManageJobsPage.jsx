@@ -136,7 +136,7 @@ const ManageJobsPage = () => {
                 {jobsData && jobsData.meta.last_page > 1 && (
                     <nav className="mt-4 d-flex justify-content-center">
                         <ul className="pagination">
-                            {jobsData.links.map((link, index) => (
+                            {jobsData.meta.links.map((link, index) => (
                                 <li key={index} className={`page-item ${link.active ? 'active' : ''} ${!link.url ? 'disabled' : ''}`}>
                                     <button 
                                         className="page-link"

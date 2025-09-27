@@ -5,14 +5,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'https://get-job-plateform.netlify.app',
-        'http://localhost:5173'
-    ],
+    'allowed_origins' => ['*'],
 
-    'allowed_origins_patterns' => [
-        'https://get-job-plateform.netlify.app/*', // Add pattern matching
-    ],
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
