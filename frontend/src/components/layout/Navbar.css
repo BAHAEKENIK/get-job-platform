@@ -1,4 +1,6 @@
-/* Style pour le tooltip sur grand écran */
+/*
+ * Styles pour le tooltip sur les grands écrans (PC)
+ */
 [data-tooltip] {
   position: relative;
   cursor: pointer;
@@ -28,24 +30,39 @@
   transition-delay: 0.3s;
 }
 
+
 /*
- * --- MEDIA QUERIES POUR LE RESPONSIVE ---
- * Pour les écrans de taille "lg" (large) et plus petits (typiquement les tablettes et mobiles)
+ * === Media Queries pour le Mobile ===
  */
-@media (max-width: 991.98px) {
-  /* On désactive les tooltips car ils ne fonctionnent pas bien sur le tactile */
+@media (max-width: 991px) {
+  
+  /* Masquer les tooltips sur mobile car il n'y a pas de :hover */
   [data-tooltip]:before {
-    display: none;
+    display: none !important;
+  }
+  
+  /* Ré-aligner les éléments de la barre de navigation en colonne */
+  .navbar-nav .nav-item {
+    margin: 0.5rem 0; /* Ajouter de l'espacement vertical */
+    display: flex;
+    justify-content: flex-start; /* Aligner à gauche */
+    align-items: center;
+    width: 100%;
   }
 
-  /* On s'assure que le menu déroulant prend toute la largeur */
+  .navbar-nav .nav-link,
+  .navbar-nav .dropdown-item {
+    font-size: 1.1rem !important; /* Agrandir le texte pour le mobile */
+  }
+
+  /* Adapter le menu déroulant de l'utilisateur */
+  .dropdown-menu-end[data-bs-popper] {
+    left: auto;
+    right: 0 !important;
+  }
+  
   .navbar-nav {
-    width: 100%;
-    align-items: flex-start !important; /* Alignement à gauche dans le menu burger */
-  }
-
-  .nav-item {
-    width: 100%;
-    margin: 0.5rem 0 !important;
+     padding-top: 1rem;
+     padding-bottom: 1rem;
   }
 }
