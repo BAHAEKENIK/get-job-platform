@@ -10,8 +10,8 @@ import {
     FaListAlt,
     FaUserShield,
     FaPlusCircle,
-    FaUsers, // <- Import de la nouvelle icône
-    FaCog // <- Import de la nouvelle icône
+    FaUsers,
+    FaCog
 } from 'react-icons/fa';
 import './Navbar.css';
 
@@ -25,7 +25,8 @@ const Navbar = () => {
             <div className="container-fluid">
                 {/* Logo */}
                 <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
-                    <FaBriefcase className="me-2" />
+                    {/* --- LA MODIFICATION EST ICI --- */}
+                    <FaBriefcase className="me-2" style={{ color: '#0d6efd' }} /> {/* Couleur bleue Bootstrap */}
                     <span>Get_Job</span>
                 </Link>
 
@@ -106,7 +107,6 @@ const Navbar = () => {
                                         </li>
                                         <li><hr className="dropdown-divider"/></li>
                                         
-                                        {/* --- MODIFICATION ICI --- */}
                                         {user.role === 'admin' && (
                                             <>
                                                 <li><Link className="dropdown-item" to="/admin/dashboard"><FaUserShield className="me-2" /> Dashboard Admin</Link></li>
@@ -115,7 +115,6 @@ const Navbar = () => {
                                                 <li><hr className="dropdown-divider"/></li>
                                             </>
                                         )}
-                                        {/* --- FIN DE LA MODIFICATION --- */}
                                         
                                         <li>
                                             <button className="dropdown-item text-danger" onClick={handleLogout}>
