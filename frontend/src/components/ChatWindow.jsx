@@ -7,7 +7,6 @@ import { FaPaperclip, FaPaperPlane } from 'react-icons/fa';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-// Fonction utilitaire pour formater les dates des messages
 const formatMessageDate = (dateString) => {
     const date = parseISO(dateString);
     if (isToday(date)) return format(date, 'HH:mm');
@@ -23,26 +22,37 @@ const ChatWindow = ({ conversation }) => {
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    // Scroll automatique vers le bas à chaque nouveau message
+    // Scroll automatique vers le bas
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
     useEffect(scrollToBottom, [messages]);
 
-    // Chargement des messages et écoute des nouveaux messages en temps réel
+    // Chargement des messages avec polling
     useEffect(() => {
-    const pollInterval = setInterval(() => {
-        if (conversation) {
-            ChatService.getMessages(conversation.id).then(response => {
-                setMessages(response.data.data);
-            });
-        }
-    }, 3000); // Poll every 3 seconds
+        if (!conversation) return;
 
-    return () => clearInterval(pollInterval);
-}, [conversation]);
+        // Fonction pour charger les messages
+        const loadMessages = () => {
+            ChatService.getMessages(conversation.id)
+                .then(response => {
+                    setMessages(response.data.data || []);
+                })
+                .catch(error => {
+                    console.error("Erreur de chargement des messages:", error);
+                });
+        };
 
-    // Envoi de message texte ou fichier
+        // Charger immédiatement
+        loadMessages();
+
+        // Polling toutes les 3 secondes
+        const pollInterval = setInterval(loadMessages, 3000);
+
+        return () => clearInterval(pollInterval);
+    }, [conversation]);
+
+    // Envoi de message avec mise à jour optimiste
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!newMessage.trim() && !file) return;
@@ -51,25 +61,42 @@ const ChatWindow = ({ conversation }) => {
         formData.append('content', newMessage);
         if (file) formData.append('file', file);
 
-        await ChatService.sendMessage(conversation.id, formData);
+        // Message optimiste (affiché immédiatement)
+        const optimisticMessage = {
+            id: Date.now(), // ID temporaire
+            content: newMessage,
+            file_url: file ? URL.createObjectURL(file) : null,
+            sent_at: new Date().toISOString(),
+            sender: { id: user.id, name: user.name },
+            isOptimistic: true
+        };
 
+        setMessages(prev => [...prev, optimisticMessage]);
         setNewMessage('');
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
+
+        try {
+            await ChatService.sendMessage(conversation.id, formData);
+            // Le polling va actualiser avec le vrai message
+        } catch (error) {
+            console.error("Erreur d'envoi:", error);
+            // Retirer le message optimiste en cas d'erreur
+            setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+            alert("Erreur lors de l'envoi du message.");
+        }
     };
 
     return (
         <>
-            {/* Entête de la fenêtre de chat */}
             <div className={styles.chatHeader}>
                 <div className={styles.avatar}>{conversation.with_user.name.substring(0, 2).toUpperCase()}</div>
                 <h5>{conversation.with_user.name}</h5>
             </div>
 
-            {/* Zone de messages */}
             <div className={styles.chatMessagesArea}>
                 {messages.map((msg) => {
-                    const isSentByMe = msg.sender.id === user.id; // true si message envoyé par moi
+                    const isSentByMe = msg.sender.id === user.id;
                     return (
                         <div
                             key={msg.id}
@@ -93,9 +120,14 @@ const ChatWindow = ({ conversation }) => {
                                 )}
                                 <small
                                     className="d-block"
-                                    style={{ textAlign: isSentByMe ? 'right' : 'left', color: isSentByMe ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)' }}
+                                    style={{ 
+                                        textAlign: isSentByMe ? 'right' : 'left', 
+                                        color: isSentByMe ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.4)',
+                                        fontStyle: msg.isOptimistic ? 'italic' : 'normal'
+                                    }}
                                 >
                                     {formatMessageDate(msg.sent_at)}
+                                    {msg.isOptimistic && ' (Envoi...)'}
                                 </small>
                             </div>
                         </div>
@@ -104,7 +136,6 @@ const ChatWindow = ({ conversation }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Formulaire d'envoi */}
             <form onSubmit={handleSendMessage} className={styles.chatInputForm}>
                 <div className="input-group">
                     <input
