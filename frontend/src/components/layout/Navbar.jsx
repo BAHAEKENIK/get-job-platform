@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import {
@@ -17,14 +17,21 @@ import './Navbar.css';
 
 const Navbar = () => {
     const { user, logout, notifications } = useContext(AuthContext);
-    const handleLogout = () => { logout(); };
+    const [isOpen, setIsOpen] = useState(false);
 
-    // Une petite fonction pour fermer le menu burger après un clic sur un lien (sur mobile)
+    const handleLogout = () => {
+        logout();
+        setIsOpen(false);
+    };
+
+    // Toggle menu burger
+    const toggleNavbar = () => {
+        setIsOpen(!isOpen);
+    };
+
+    // Fermer après clic sur un lien
     const closeNavbar = () => {
-        const navbarToggler = document.querySelector('.navbar-toggler');
-        if (navbarToggler.getAttribute('aria-expanded') === 'true') {
-            navbarToggler.click();
-        }
+        setIsOpen(false);
     };
 
     return (
@@ -36,21 +43,21 @@ const Navbar = () => {
                     <span>Get_Job</span>
                 </Link>
 
-                {/* --- Bouton Burger pour Mobile/Tablette --- */}
+                {/* --- Bouton Burger --- */}
                 <button
-                    className="navbar-toggler"
+                    className={`navbar-toggler ${isOpen ? '' : 'collapsed'}`}
                     type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#mainNavbar"
+                    onClick={toggleNavbar}
                     aria-controls="mainNavbar"
-                    aria-expanded="false"
+                    aria-expanded={isOpen ? 'true' : 'false'}
                     aria-label="Toggle navigation"
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
-                
-                <div className="collapse navbar-collapse" id="mainNavbar">
-                    {/* Liens principaux (à gauche sur grand écran) */}
+
+                {/* --- Contenu du menu --- */}
+                <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="mainNavbar">
+                    {/* Liens principaux */}
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/jobs" onClick={closeNavbar}>
@@ -59,10 +66,9 @@ const Navbar = () => {
                         </li>
                     </ul>
 
-                    {/* Section droite (se replie dans le burger sur mobile) */}
+                    {/* Section droite */}
                     <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         {user ? (
-                            // --- VUE UTILISATEUR CONNECTÉ ---
                             <>
                                 {user.role === 'recruiter' && (
                                     <li className="nav-item mobile-full-width">
@@ -83,13 +89,33 @@ const Navbar = () => {
                                         <FaComments className="me-1 d-lg-none" /> Messagerie
                                     </NavLink>
                                 </li>
+
+                                {/* Notifications */}
                                 <li className="nav-item dropdown mobile-full-width">
                                     <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <FaBell className="me-1 d-lg-none" /> Notifications
                                         {notifications?.length > 0 && <span className="badge rounded-pill bg-danger ms-1">{notifications.length}</span>}
                                     </a>
-                                    {/* ... menu déroulant notifications ... */}
+                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                        <li className="px-3 py-2 fw-bold">Notifications</li>
+                                        <li><hr className="dropdown-divider my-0" /></li>
+                                        <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                            {notifications?.length > 0 ? (
+                                                notifications.map(n => (
+                                                    <li key={n.id}>
+                                                        <Link to={n.data.action_url} className="dropdown-item py-2 small" onClick={closeNavbar}>
+                                                            {n.data.message}
+                                                        </Link>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li><span className="dropdown-item-text text-muted text-center py-3">Aucune nouvelle notification</span></li>
+                                            )}
+                                        </div>
+                                    </ul>
                                 </li>
+
+                                {/* Menu utilisateur */}
                                 <li className="nav-item dropdown mobile-full-width">
                                     <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <FaUserCircle className="me-1 d-lg-none" /> {user.name}
@@ -104,7 +130,7 @@ const Navbar = () => {
                                             </>
                                         )}
                                         <li>
-                                            <button className="dropdown-item text-danger" onClick={() => { handleLogout(); closeNavbar(); }}>
+                                            <button className="dropdown-item text-danger" onClick={handleLogout}>
                                                 <FaSignOutAlt className="me-2" /> Déconnexion
                                             </button>
                                         </li>
@@ -112,14 +138,13 @@ const Navbar = () => {
                                 </li>
                             </>
                         ) : (
-                             // --- VUE UTILISATEUR NON CONNECTÉ ---
                             <>
                                 <li className="nav-item mb-2 mb-lg-0">
                                     <Link className="btn btn-outline-primary w-100" to="/login" onClick={closeNavbar}>
                                         Connexion
                                     </Link>
                                 </li>
-                                <li className="nav-item">
+                                <li className="nav-item ms-lg-2">
                                     <Link className="btn btn-primary w-100" to="/register" onClick={closeNavbar}>
                                         Inscription
                                     </Link>
