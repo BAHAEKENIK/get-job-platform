@@ -1,13 +1,12 @@
-/* --- STYLES GÉNÉRAUX --- */
-
 .registerPage {
   position: relative;
   min-height: 100vh;
+  width: 100%; /* Important pour que le canvas remplisse tout */
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem; /* Padding de base pour mobile */
+  padding: 1rem; /* Padding de base pour les petits écrans */
 }
 
 .background {
@@ -25,24 +24,18 @@
   width: 100%;
   max-width: 450px;
   background: rgba(255, 255, 255, 0.9);
-  padding: 2rem; /* Padding réduit pour mobile */
+  padding: 2.5rem;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .formHeader {
   color: #333;
-  font-weight: 700; /* Plus de poids */
-  margin-bottom: 0.5rem; /* Réduit pour logo */
-}
-
-.brandLogo {
-    font-size: 1.5rem;
-    color: #0d6efd; /* Bleu Bootstrap */
-    margin-bottom: 1.5rem; /* Espace sous le logo */
+  font-weight: 600;
+  margin-bottom: 1.5rem; /* Réduit pour les petits écrans */
+  font-size: 1.8rem;
 }
 
 .passwordIcon {
@@ -57,7 +50,7 @@
 
 .submitButton {
   padding: 12px 20px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   border-radius: 8px;
   border: none;
@@ -71,16 +64,17 @@
   background-position: right center;
 }
 
+
 /*
- * --- MEDIA QUERY POUR TABLETTES & PC (plus de 768px) ---
- * On rétablit les espacements plus larges.
+ * --- MEDIA QUERY POUR LES GRANDS ÉCRANS ---
  */
 @media (min-width: 768px) {
   .registerPage {
-      padding: 2rem; /* Plus de padding sur grand écran */
+    padding: 2rem; /* Augmente le padding sur les grands écrans */
   }
-  
-  .formContainer {
-      padding: 2.5rem;
+
+  .formHeader {
+     margin-bottom: 2rem;
+     font-size: 2rem;
   }
 }

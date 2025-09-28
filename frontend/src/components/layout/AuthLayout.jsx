@@ -1,31 +1,50 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { FaBriefcase } from 'react-icons/fa';
 
 const AuthLayout = () => {
+    // Le hook useLocation nous donne l'URL actuelle.
+    const location = useLocation();
+
+    // On regarde sur quelle page on se trouve.
+    const isLoginPage = location.pathname === '/login';
+    const isRegisterPage = location.pathname === '/register';
+
     return (
         <div>
-            {/* En-tête simple, fixe en haut */}
+            {/* --- HEADER AMÉLIORÉ POUR LE RESPONSIVE --- */}
             <header style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
-                padding: '1rem 2rem',
+                padding: '1rem 1.5rem',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 zIndex: 10
             }}>
-                <Link className="navbar-brand" to="/" style={{ color: '#333', fontWeight: 'bold' }}>
+                {/* Logo */}
+                <Link className="navbar-brand fw-bold d-flex align-items-center" to="/" style={{ color: '#333' }}>
+                    <FaBriefcase className="me-2" style={{ color: '#0d6efd' }} />
                     Get_Job
                 </Link>
+                
+                {/* Boutons qui s'affichent/se cachent en fonction de la page */}
                 <div >
-                    <Link to="/login" className="btn btn-light me-2">Connexion</Link>
-                    <Link to="/register" className="btn btn-outline-light bg-danger">Inscription</Link>
+                    {/* Le bouton Connexion est caché sur la page /login */}
+                    {!isLoginPage && (
+                        <Link to="/login" className="btn btn-light me-2">Connexion</Link>
+                    )}
+                    
+                    {/* Le bouton Inscription est caché sur la page /register */}
+                    {!isRegisterPage && (
+                        <Link to="/register" className="btn btn-light">Inscription</Link>
+                    )}
                 </div>
             </header>
-
-            {/* La balise Outlet va afficher le contenu de la page actuelle (LoginPage, RegisterPage, etc.) */}
+            
+            {/* Le contenu de la page (LoginPage, RegisterPage...) sera affiché ici */}
             <main>
                 <Outlet />
             </main>

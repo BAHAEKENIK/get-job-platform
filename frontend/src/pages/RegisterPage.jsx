@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { FaEye, FaEyeSlash, FaBriefcase } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from './RegisterPage.module.css';
 
 const RegisterPage = () => {
@@ -19,49 +19,58 @@ const RegisterPage = () => {
 
   const canvasRef = useRef(null);
 
-  // 🎨 Animation des points (inchangée)
+  // 🎨 Animation des points interactifs (INCHANGÉE)
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-
+    if(!canvas) return;
+    
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     let animationFrameId;
+
     const particles = [];
     const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd'];
 
     for (let i = 0; i < 120; i++) {
       particles.push({
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
         r: Math.random() * 3 + 1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        dx: (Math.random() - 0.5) * 1, dy: (Math.random() - 0.5) * 1,
+        dx: (Math.random() - 0.5) * 1,
+        dy: (Math.random() - 0.5) * 1,
       });
     }
 
     let mouse = { x: null, y: null };
-    const handleMouseMove = (e) => {
+    window.addEventListener('mousemove', (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-    };
-    window.addEventListener('mousemove', handleMouseMove);
+    });
 
-    function animate() {
+    const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p) => {
-        p.x += p.dx; p.y += p.dy;
+        p.x += p.dx;
+        p.y += p.dy;
+
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
         if (mouse.x && mouse.y) {
-          const distX = mouse.x - p.x; const distY = mouse.y - p.y;
-          const dist = Math.sqrt(distX * distX + distY * distY);
-          if (dist < 100) {
-            p.x -= distX / 10; p.y -= distY / 10;
-          }
+            const distX = mouse.x - p.x;
+            const distY = mouse.y - p.y;
+            const dist = Math.sqrt(distX * distX + distY * distY);
+            if (dist < 100) {
+              p.x -= distX / 10;
+              p.y -= distY / 10;
+            }
         }
-        if (Math.random() < 0.005) p.color = colors[Math.floor(Math.random() * colors.length)];
+        if (Math.random() < 0.005) {
+          p.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
@@ -72,32 +81,41 @@ const RegisterPage = () => {
     animate();
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (canvasRef.current) {
+         canvasRef.current.width = window.innerWidth;
+         canvasRef.current.height = window.innerHeight;
+      }
     };
     window.addEventListener('resize', resize);
 
     return () => {
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('mousemove', () => {});
+      cancelAnimationFrame(animationFrameId)
     };
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
+
     if (password !== passwordConfirmation) {
       setErrors({ password_confirmation: "Les mots de passe ne correspondent pas" });
       return;
     }
+
     try {
-      await register({ name, email, password, password_confirmation: passwordConfirmation, role });
+      const registerData = { name, email, password, password_confirmation: passwordConfirmation, role };
+      await register(registerData);
       alert('Inscription réussie 🎉 ! Vous pouvez maintenant vous connecter.');
       navigate('/login');
     } catch (error) {
-      if (error.response?.data?.errors) setErrors(error.response.data.errors);
-      else alert("Erreur lors de l'inscription.");
+      console.error('Registration failed:', error);
+      if (error.response?.data?.errors) {
+        setErrors(error.response.data.errors);
+      } else {
+        alert("Erreur lors de l'inscription.");
+      }
     }
   };
 
@@ -105,12 +123,8 @@ const RegisterPage = () => {
     <div className={styles.registerPage}>
       <canvas ref={canvasRef} className={styles.background}></canvas>
       <div className={styles.formContainer}>
-        <div className="text-center">
-            <FaBriefcase className={styles.brandLogo} />
-        </div>
         <h2 className={`text-center ${styles.formHeader}`}>Créer un compte</h2>
-
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">Nom Complet</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={`form-control ${errors.name ? 'is-invalid' : ''}`} placeholder="ex: Jean Dupont" required />
@@ -153,7 +167,6 @@ const RegisterPage = () => {
             </select>
             {errors.role && <div className="invalid-feedback">{errors.role[0]}</div>}
           </div>
-
           <button type="submit" className={`w-100 ${styles.submitButton}`}>Créer mon compte</button>
         </form>
       </div>
