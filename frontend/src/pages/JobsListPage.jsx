@@ -16,11 +16,10 @@ const JobsListPage = () => {
 
     const canvasRef = useRef(null);
 
-    // 🎨 Logique d'animation des particules
+    // 🎨 Logique d'animation (INCHANGÉE)
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext('2d');
         let animationFrameId;
 
@@ -78,21 +77,14 @@ const JobsListPage = () => {
         };
     }, []);
 
-    // Le useEffect qui charge les données
     useEffect(() => {
         const fetchJobs = () => {
             setLoading(true);
             setError(null);
             JobService.getAllJobs(searchParams)
-                .then(response => {
-                    setJobsData(response.data);
-                })
-                .catch(err => {
-                    setError('Impossible de charger les offres d\'emploi.');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
+                .then(response => { setJobsData(response.data); })
+                .catch(err => { setError('Impossible de charger les offres d\'emploi.'); })
+                .finally(() => { setLoading(false); });
         };
         fetchJobs();
     }, [searchParams]);
@@ -118,21 +110,24 @@ const JobsListPage = () => {
             <div className={styles.contentWrapper}>
                 <div className={styles.headerCard}>
                     <h1 className={styles.title}>Trouvez l'offre qui vous correspond</h1>
-                    <form onSubmit={handleSearch} className="row g-3">
-                        <div className="col-12 col-md-5"> {/* Devient 1 colonne sur mobile */}
-                            <input type="text" className="form-control" placeholder="Mot-clé..." value={keyword} onChange={e => setKeyword(e.target.value)} />
+                    {/* ✅ CORRECTION ICI : Remplacement des classes de colonnes */}
+                    <form onSubmit={handleSearch} className={`row g-3 ${styles.searchForm}`}>
+                        {/* Pour grand écran: 5/12 | Pour tablette: 12/12 (pleine largeur) */}
+                        <div className="col-lg-5 col-md-12">
+                            <input type="text" className="form-control" placeholder="Mot-clé (ex: Développeur React)" value={keyword} onChange={e => setKeyword(e.target.value)} />
                         </div>
-                        <div className="col-12 col-md-5"> {/* Devient 1 colonne sur mobile */}
-                            <input type="text" className="form-control" placeholder="Lieu..." value={location} onChange={e => setLocation(e.target.value)} />
+                         {/* Pour grand écran: 5/12 | Pour tablette: 12/12 (pleine largeur) */}
+                        <div className="col-lg-5 col-md-12">
+                            <input type="text" className="form-control" placeholder="Lieu (ex: Paris)" value={location} onChange={e => setLocation(e.target.value)} />
                         </div>
-                        <div className="col-12 col-md-2"> {/* Devient 1 colonne sur mobile */}
+                         {/* Pour grand écran: 2/12 | Pour tablette: 12/12 (pleine largeur) */}
+                        <div className="col-lg-2 col-md-12">
                             <button type="submit" className="btn btn-primary w-100">Rechercher</button>
                         </div>
                     </form>
                 </div>
                 
                 {loading && <div className="d-flex justify-content-center p-5"><div className="spinner-border text-primary" style={{ width: '3rem', height: '3rem' }}></div></div>}
-                
                 {error && <div className="alert alert-danger">{error}</div>}
                 
                 {!loading && jobsData && (
