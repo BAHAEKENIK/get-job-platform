@@ -1,12 +1,13 @@
+/* --- STYLES GÉNÉRAUX --- */
+
 .registerPage {
   position: relative;
   min-height: 100vh;
-  width: 100%;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem; /* Padding de base pour les petits écrans */
+  padding: 1rem; /* Padding de base pour mobile */
 }
 
 .background {
@@ -24,7 +25,7 @@
   width: 100%;
   max-width: 450px;
   background: rgba(255, 255, 255, 0.9);
-  padding: 2rem; /* Padding ajusté pour être flexible */
+  padding: 2rem; /* Padding réduit pour mobile */
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -34,9 +35,14 @@
 
 .formHeader {
   color: #333;
-  font-weight: 600;
-  margin-bottom: 1.5rem; /* Marge réduite */
-  font-size: 1.8rem; /* Taille de police flexible */
+  font-weight: 700; /* Plus de poids */
+  margin-bottom: 0.5rem; /* Réduit pour logo */
+}
+
+.brandLogo {
+    font-size: 1.5rem;
+    color: #0d6efd; /* Bleu Bootstrap */
+    margin-bottom: 1.5rem; /* Espace sous le logo */
 }
 
 .passwordIcon {
@@ -51,7 +57,7 @@
 
 .submitButton {
   padding: 12px 20px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   border-radius: 8px;
   border: none;
@@ -63,20 +69,18 @@
 
 .submitButton:hover {
   background-position: right center;
-  color: #fff;
-  text-decoration: none;
 }
 
-/* --- RESPONSIVE : Pour les tablettes et plus grands écrans --- */
-@media (min-width: 576px) {
+/*
+ * --- MEDIA QUERY POUR TABLETTES & PC (plus de 768px) ---
+ * On rétablit les espacements plus larges.
+ */
+@media (min-width: 768px) {
   .registerPage {
-    padding: 2rem;
+      padding: 2rem; /* Plus de padding sur grand écran */
   }
+  
   .formContainer {
-    padding: 2.5rem;
-  }
-  .formHeader {
-    font-size: 2rem;
-    margin-bottom: 2rem;
+      padding: 2.5rem;
   }
 }
