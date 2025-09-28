@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import {
@@ -17,50 +17,26 @@ import './Navbar.css';
 
 const Navbar = () => {
     const { user, logout, notifications } = useContext(AuthContext);
-    const navbarRef = useRef(null);
+    const handleLogout = () => { logout(); };
 
-    const handleLogout = () => { 
-        logout(); 
-        closeNavbar();
-    };
-
+    // Une petite fonction pour fermer le menu burger après un clic sur un lien (sur mobile)
     const closeNavbar = () => {
         const navbarToggler = document.querySelector('.navbar-toggler');
-        const navbarCollapse = document.querySelector('.navbar-collapse');
-        
-        if (navbarToggler && navbarToggler.getAttribute('aria-expanded') === 'true') {
+        if (navbarToggler.getAttribute('aria-expanded') === 'true') {
             navbarToggler.click();
-        }
-        
-        if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-            navbarCollapse.classList.remove('show');
         }
     };
 
-    // Fermer le navbar quand on clique en dehors
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (navbarRef.current && !navbarRef.current.contains(event.target)) {
-                closeNavbar();
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     return (
-        <nav ref={navbarRef} className="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top custom-navbar">
+        <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top" style={{ padding: '0.75rem 1.5rem' }}>
             <div className="container-fluid">
                 {/* Logo */}
                 <Link className="navbar-brand fw-bold d-flex align-items-center" to="/" onClick={closeNavbar}>
-                    <FaBriefcase className="me-2 brand-icon" />
+                    <FaBriefcase className="me-2" style={{ color: '#0d6efd' }} />
                     <span>Get_Job</span>
                 </Link>
 
-                {/* Bouton Burger */}
+                {/* --- Bouton Burger pour Mobile/Tablette --- */}
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -74,7 +50,7 @@ const Navbar = () => {
                 </button>
                 
                 <div className="collapse navbar-collapse" id="mainNavbar">
-                    {/* Liens principaux */}
+                    {/* Liens principaux (à gauche sur grand écran) */}
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
                             <NavLink className="nav-link" to="/jobs" onClick={closeNavbar}>
@@ -83,10 +59,10 @@ const Navbar = () => {
                         </li>
                     </ul>
 
-                    {/* Section droite */}
+                    {/* Section droite (se replie dans le burger sur mobile) */}
                     <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
                         {user ? (
-                            // Utilisateur connecté
+                            // --- VUE UTILISATEUR CONNECTÉ ---
                             <>
                                 {user.role === 'recruiter' && (
                                     <li className="nav-item mobile-full-width">
@@ -108,16 +84,14 @@ const Navbar = () => {
                                     </NavLink>
                                 </li>
                                 <li className="nav-item dropdown mobile-full-width">
-                                    <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" onClick={(e) => e.preventDefault()}>
+                                    <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <FaBell className="me-1 d-lg-none" /> Notifications
                                         {notifications?.length > 0 && <span className="badge rounded-pill bg-danger ms-1">{notifications.length}</span>}
                                     </a>
-                                    <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-                                        <li><span className="dropdown-item-text">Notifications</span></li>
-                                    </ul>
+                                    {/* ... menu déroulant notifications ... */}
                                 </li>
                                 <li className="nav-item dropdown mobile-full-width">
-                                    <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" onClick={(e) => e.preventDefault()}>
+                                    <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         <FaUserCircle className="me-1 d-lg-none" /> {user.name}
                                     </a>
                                     <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
@@ -130,7 +104,7 @@ const Navbar = () => {
                                             </>
                                         )}
                                         <li>
-                                            <button className="dropdown-item text-danger" onClick={handleLogout}>
+                                            <button className="dropdown-item text-danger" onClick={() => { handleLogout(); closeNavbar(); }}>
                                                 <FaSignOutAlt className="me-2" /> Déconnexion
                                             </button>
                                         </li>
@@ -138,7 +112,7 @@ const Navbar = () => {
                                 </li>
                             </>
                         ) : (
-                            // Utilisateur non connecté
+                             // --- VUE UTILISATEUR NON CONNECTÉ ---
                             <>
                                 <li className="nav-item mb-2 mb-lg-0">
                                     <Link className="btn btn-outline-primary w-100" to="/login" onClick={closeNavbar}>
