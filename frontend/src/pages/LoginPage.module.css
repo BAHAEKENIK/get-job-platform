@@ -1,10 +1,12 @@
 .loginPage {
   position: relative;
   min-height: 100vh;
+  width: 100%;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem; /* Padding de base pour mobile */
 }
 
 .background {
@@ -22,7 +24,7 @@
   width: 100%;
   max-width: 420px;
   background: rgba(255, 255, 255, 0.9);
-  padding: 2.5rem;
+  padding: 2rem; /* Moins de padding sur mobile */
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -32,7 +34,8 @@
 .formHeader {
   color: #333;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
 }
 
 .passwordIcon {
@@ -59,6 +62,21 @@
 
 .submitButton:hover {
   background-position: right center;
-  color: #fff;
-  text-decoration: none;
+}
+
+
+/*
+ * --- MEDIA QUERY POUR LES GRANDS ÉCRANS ---
+ */
+@media (min-width: 768px) {
+  .loginPage {
+    padding: 2rem; /* Retour au padding normal sur PC */
+  }
+  .formContainer {
+    padding: 2.5rem; /* Retour au padding normal sur PC */
+  }
+  .formHeader {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+  }
 }

@@ -17,12 +17,15 @@ const LoginPage = () => {
 
   const canvasRef = useRef(null);
 
-  // 🎨 Animation des points comme ForgotPassword
+  // 🎨 Animation des points (INCHANGÉE)
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return; // Sécurité
+
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    let animationFrameId;
 
     const particles = [];
     const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd'];
@@ -39,56 +42,55 @@ const LoginPage = () => {
     }
 
     let mouse = { x: null, y: null };
-    window.addEventListener('mousemove', (e) => {
+    const handleMouseMove = (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-    });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
 
-    function animate() {
+    const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p) => {
-        // Déplacement
         p.x += p.dx;
         p.y += p.dy;
-
-        // Rebonds
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
 
-        // Effet souris (repousser les points)
-        const distX = mouse.x - p.x;
-        const distY = mouse.y - p.y;
-        const dist = Math.sqrt(distX * distX + distY * distY);
-        if (dist < 100) {
-          p.x -= distX / 10;
-          p.y -= distY / 10;
+        if (mouse.x && mouse.y) {
+          const distX = mouse.x - p.x;
+          const distY = mouse.y - p.y;
+          const dist = Math.sqrt(distX * distX + distY * distY);
+          if (dist < 100) {
+            p.x -= distX / 10;
+            p.y -= distY / 10;
+          }
         }
 
-        // Couleur aléatoire parfois
         if (Math.random() < 0.005) {
           p.color = colors[Math.floor(Math.random() * colors.length)];
         }
 
-        // Dessin
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
         ctx.fill();
       });
-      requestAnimationFrame(animate);
-    }
+      animationFrameId = requestAnimationFrame(animate);
+    };
     animate();
 
-    // Resize
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if(canvasRef.current){
+        canvasRef.current.width = window.innerWidth;
+        canvasRef.current.height = window.innerHeight;
+      }
     };
     window.addEventListener('resize', resize);
 
     return () => {
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', () => {});
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
