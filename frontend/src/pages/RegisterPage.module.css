@@ -1,10 +1,12 @@
 .registerPage {
   position: relative;
   min-height: 100vh;
+  width: 100%;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem; /* Padding de base pour les petits écrans */
 }
 
 .background {
@@ -22,17 +24,19 @@
   width: 100%;
   max-width: 450px;
   background: rgba(255, 255, 255, 0.9);
-  padding: 2.5rem;
+  padding: 2rem; /* Padding ajusté pour être flexible */
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .formHeader {
   color: #333;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Marge réduite */
+  font-size: 1.8rem; /* Taille de police flexible */
 }
 
 .passwordIcon {
@@ -61,4 +65,18 @@
   background-position: right center;
   color: #fff;
   text-decoration: none;
+}
+
+/* --- RESPONSIVE : Pour les tablettes et plus grands écrans --- */
+@media (min-width: 576px) {
+  .registerPage {
+    padding: 2rem;
+  }
+  .formContainer {
+    padding: 2.5rem;
+  }
+  .formHeader {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
 }
