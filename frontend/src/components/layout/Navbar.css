@@ -1,3 +1,18 @@
+/*
+ * === STYLES POUR LE DESKTOP ===
+ */
+
+/* Pour masquer le texte à côté des icônes sur grand écran */
+.nav-link-icon-text .nav-text {
+  display: none;
+}
+
+/* Pour ajuster la taille du badge de notification sur les icônes */
+.nav-link-icon-text .badge {
+  font-size: 0.55em;
+  padding: 0.3em;
+}
+
 /* Style pour le tooltip sur grand écran */
 [data-tooltip] {
   position: relative;
@@ -28,24 +43,57 @@
   transition-delay: 0.3s;
 }
 
+
 /*
- * --- MEDIA QUERIES POUR LE RESPONSIVE ---
- * Pour les écrans de taille "lg" (large) et plus petits (typiquement les tablettes et mobiles)
+ * === STYLES RESPONSIVES POUR MOBILE ET TABLETTE ===
+ * S'applique en dessous de 992px de large
  */
 @media (max-width: 991.98px) {
-  /* On désactive les tooltips car ils ne fonctionnent pas bien sur le tactile */
+  /* On désactive les tooltips car ils ne fonctionnent pas sur tactile */
   [data-tooltip]:before {
     display: none;
   }
+  
+  /* Logique pour afficher le texte dans le menu burger */
+  .nav-link-icon-text {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Espace entre l'icône et le texte */
+    font-size: 1rem !important; /* Rendre le texte plus lisible sur mobile */
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .nav-link-icon-text .nav-text {
+    display: inline; /* AFFICHE le texte */
+  }
 
-  /* On s'assure que le menu déroulant prend toute la largeur */
+  .nav-link-icon-text .nav-icon {
+    font-size: 1.2rem; /* Légèrement plus grand pour la lisibilité */
+  }
+
+  /* Retirer le badge de sa position absolue pour qu'il soit à côté de l'icône */
+  .nav-link-icon-text .badge {
+    position: static;
+    transform: none;
+    font-size: 0.75em !important;
+    padding: 0.35em 0.65em !important;
+    margin-left: 0.5rem;
+  }
+  
+  /* Styles pour les liens non connectés dans le burger */
+  .navbar-nav .btn {
+      width: 100%;
+      text-align: left;
+      margin-top: 0.5rem;
+  }
+
+  /* Ajustements généraux pour le menu burger */
   .navbar-nav {
     width: 100%;
-    align-items: flex-start !important; /* Alignement à gauche dans le menu burger */
   }
 
   .nav-item {
     width: 100%;
-    margin: 0.5rem 0 !important;
+    margin-bottom: 0.5rem;
   }
 }
