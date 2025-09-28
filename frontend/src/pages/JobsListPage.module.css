@@ -3,7 +3,7 @@
   min-height: calc(100vh - 56px);
   width: 100%;
   overflow-y: auto;
-  padding: 2.5rem;
+  padding: 1.5rem; /* Réduit pour les mobiles */
   background-color: #f4f7f6;
 }
 
@@ -28,18 +28,18 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 2.5rem;
+  padding: 1.5rem;
   border-radius: 15px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   text-align: center;
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 1.8rem; /* Plus petit pour les mobiles */
   font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .searchForm input,
@@ -47,6 +47,7 @@
   padding: 12px 15px;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
+  width: 100%; /* Pleine largeur par défaut */
 }
 
 .searchForm input:focus {
@@ -57,26 +58,27 @@
   font-weight: 600;
 }
 
-/* --- STYLES POUR LA PAGINATION --- */
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
   list-style: none;
   padding: 0;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
 }
 .pageItem {
-  margin: 0 4px;
+  margin: 0 2px; /* Espacement réduit sur mobile */
 }
 .pageLink {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.75rem; /* Boutons plus petits sur mobile */
   border: 1px solid #dee2e6;
   background-color: #fff;
   color: #0d6efd;
   border-radius: 0.25rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  font-size: 0.9rem;
 }
 .pageLink:hover {
   background-color: #e9ecef;
@@ -92,4 +94,35 @@
   pointer-events: none;
   background-color: #fff;
   border-color: #dee2e6;
+}
+
+/*
+ * --- MEDIA QUERIES POUR TABLETTES ET PLUS GRAND ---
+ * Bootstrap breakpoint: 'md' = 768px
+ */
+@media (min-width: 768px) {
+  .pageContainer {
+    padding: 2.5rem; /* Plus d'espace sur les grands écrans */
+  }
+
+  .headerCard {
+    padding: 2.5rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+  }
+  
+  .pagination {
+    margin-top: 2.5rem;
+  }
+
+  .pageItem {
+    margin: 0 4px;
+  }
+
+  .pageLink {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
 }

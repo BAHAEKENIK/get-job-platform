@@ -5,21 +5,18 @@ import JobCard from '../components/JobCard';
 import styles from './JobsListPage.module.css';
 
 const JobsListPage = () => {
-    // État principal pour la réponse de l'API
     const [jobsData, setJobsData] = useState(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
-    // searchParams est la "source de vérité" pour les filtres et la page
     const [searchParams, setSearchParams] = useSearchParams();
     
-    // États locaux UNIQUEMENT pour contrôler les champs du formulaire
     const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
     const [location, setLocation] = useState(searchParams.get('location') || '');
 
     const canvasRef = useRef(null);
 
-    // 🎨 Logique d'animation (INCHANGÉE)
+    // 🎨 Logique d'animation des particules
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -81,7 +78,7 @@ const JobsListPage = () => {
         };
     }, []);
 
-    // Le seul useEffect qui charge les données
+    // Le useEffect qui charge les données
     useEffect(() => {
         const fetchJobs = () => {
             setLoading(true);
@@ -100,7 +97,6 @@ const JobsListPage = () => {
         fetchJobs();
     }, [searchParams]);
 
-    // Gère la soumission du formulaire de recherche
     const handleSearch = (e) => {
         e.preventDefault();
         const newParams = new URLSearchParams();
@@ -110,7 +106,6 @@ const JobsListPage = () => {
         setSearchParams(newParams);
     };
 
-    // Gère le clic sur un bouton de pagination
     const handlePageClick = (linkUrl) => {
         if (!linkUrl) return;
         const url = new URL(linkUrl);
@@ -124,19 +119,20 @@ const JobsListPage = () => {
                 <div className={styles.headerCard}>
                     <h1 className={styles.title}>Trouvez l'offre qui vous correspond</h1>
                     <form onSubmit={handleSearch} className="row g-3">
-                        <div className="col-md-5">
+                        <div className="col-12 col-md-5"> {/* Devient 1 colonne sur mobile */}
                             <input type="text" className="form-control" placeholder="Mot-clé..." value={keyword} onChange={e => setKeyword(e.target.value)} />
                         </div>
-                        <div className="col-md-5">
+                        <div className="col-12 col-md-5"> {/* Devient 1 colonne sur mobile */}
                             <input type="text" className="form-control" placeholder="Lieu..." value={location} onChange={e => setLocation(e.target.value)} />
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-12 col-md-2"> {/* Devient 1 colonne sur mobile */}
                             <button type="submit" className="btn btn-primary w-100">Rechercher</button>
                         </div>
                     </form>
                 </div>
                 
                 {loading && <div className="d-flex justify-content-center p-5"><div className="spinner-border text-primary" style={{ width: '3rem', height: '3rem' }}></div></div>}
+                
                 {error && <div className="alert alert-danger">{error}</div>}
                 
                 {!loading && jobsData && (
@@ -151,7 +147,6 @@ const JobsListPage = () => {
                             )}
                         </div>
                         
-                        {/* ✅ CORRECTION FINALE : On mappe sur jobsData.meta.links et non jobsData.links */}
                         {jobsData.meta?.last_page > 1 && (
                             <nav>
                                 <ul className={styles.pagination}>
